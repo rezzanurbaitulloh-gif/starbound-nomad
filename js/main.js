@@ -39,6 +39,7 @@
     const c = Main.canvas;
     const r = c.getBoundingClientRect();
     Main.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    SB.dpr = Main.dpr;
     Main.w = Math.max(1, Math.floor(r.width));
     Main.h = Math.max(1, Math.floor(r.height));
     c.width = Math.floor(Main.w * Main.dpr);
@@ -47,7 +48,7 @@
       Main.buf.width = c.width;
       Main.buf.height = c.height;
     }
-    if (SB.galaxy && SB.galaxy.resize) SB.galaxy.resize();
+    if (SB.galaxy && SB.galaxy.canvas && SB.galaxy.resize) SB.galaxy.resize();
     if (SB.gfx && SB.gfx._off && SB.gfx._off.resize) SB.gfx._off.resize();
   }
 
@@ -131,13 +132,13 @@
     Main.buf = document.createElement('canvas');
     Main.bctx = Main.buf.getContext('2d');
 
-    resize();
-    window.addEventListener('resize', resize, { passive: true });
-
     if (SB.input && SB.input.init) SB.input.init(Main.canvas);
     if (SB.audio && SB.audio.init) SB.audio.init();
     if (SB.galaxy && SB.galaxy.init) SB.galaxy.init();
     if (SB.ui && SB.ui.wire) SB.ui.wire();
+
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
 
     Main.setMode('title');
     if (SB.ui && SB.ui.showTitle) SB.ui.showTitle();
