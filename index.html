@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#05060d">
+<title>STARBOUND NOMAD — Penjelajah Antarmata</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="scene"></canvas>
+
+  <!-- ============ HUD: RUANG ANGSA ============ -->
+  <div id="hudSpace" class="hud hidden">
+    <div class="hud-tl">
+      <div class="panel-frame">
+        <div class="pf-label">SISTEM</div>
+        <div class="pf-value" id="spSystem">—</div>
+        <div class="pf-sub" id="spRegion">—</div>
+      </div>
+    </div>
+
+    <div class="hud-tr">
+      <div class="panel-frame align-right">
+        <div class="pf-label">KAPASITAS</div>
+        <div class="gauge"><div class="gauge-fill" id="spFuelBar"></div></div>
+        <div class="pf-value small" id="spFuel">100%</div>
+        <div class="gauge thin"><div class="gauge-fill alt" id="spShieldBar"></div></div>
+        <div class="pf-value small" id="spShield">100%</div>
+      </div>
+    </div>
+
+    <div class="hud-bl">
+      <div class="panel-frame">
+        <div class="pf-row"><span>VELOCITY</span><b id="spSpeed">0</b></div>
+        <div class="pf-row"><span>POSISI</span><b id="spPos">0, 0</b></div>
+        <div class="pf-row"><span>KREDIT</span><b id="spCredits">0 CR</b></div>
+        <div class="pf-row"><span>INTI LOMPAT</span><b id="spCores">0</b></div>
+      </div>
+    </div>
+
+    <div class="hud-br">
+      <div class="panel-frame align-right">
+        <div class="pf-label">TARGET</div>
+        <div class="pf-value" id="tgName">—</div>
+        <div class="pf-sub" id="tgDist">—</div>
+      </div>
+    </div>
+
+    <canvas id="minimap" class="minimap" width="240" height="240"></canvas>
+
+    <div class="keyhints">
+      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> kendali</span>
+      <span><kbd>SHIFT</kbd> boost</span>
+      <span><kbd>E</kbd> mendarat</span>
+      <span><kbd>M</kbd> peta galaksi</span>
+      <span><kbd>J</kbd> jurnal</span>
+      <span><kbd>ESC</kbd> menu</span>
+    </div>
+  </div>
+
+  <!-- ============ HUD: PERMUKAAN PLANET ============ -->
+  <div id="hudSurface" class="hud hidden">
+    <div class="hud-tl">
+      <div class="panel-frame">
+        <div class="pf-label">PLANET</div>
+        <div class="pf-value" id="sfPlanet">—</div>
+        <div class="pf-sub" id="sfType">—</div>
+      </div>
+    </div>
+
+    <div class="hud-tr">
+      <div class="panel-frame align-right">
+        <div class="pf-label">SUIT POWER</div>
+        <div class="gauge"><div class="gauge-fill suit" id="sfSuitBar"></div></div>
+        <div class="pf-value small" id="sfSuit">100%</div>
+        <div class="pf-label" style="margin-top:10px">MUATAN</div>
+        <div class="pf-value small" id="sfCargo">0 / 20</div>
+      </div>
+    </div>
+
+    <div class="hud-bl">
+      <div class="panel-frame wide">
+        <div class="pf-label">LOGI STOK</div>
+        <div id="sfResources" class="reslist"><div class="empty">— belum ada material —</div></div>
+      </div>
+    </div>
+
+    <div class="hud-br">
+      <div class="panel-frame align-right">
+        <div class="pf-label">POS</div>
+        <div class="pf-value small" id="sfDist">0 m</div>
+        <div class="pf-sub" id="sfTime">—</div>
+      </div>
+    </div>
+
+    <div class="keyhints">
+      <span><kbd>A</kbd><kbd>D</kbd> jalan</span>
+      <span><kbd>SPACE</kbd> lompat</span>
+      <span><kbd>F</kbd> scan</span>
+      <span><kbd>E</kbd>ambil</span>
+      <span><kbd>R</kbd> pulang ke kapal</span>
+    </div>
+  </div>
+
+  <!-- ============ KONTEXT PROMPT ============ -->
+  <div id="prompt" class="prompt hidden"><kbd id="promptKey">E</kbd><span id="promptText">Mendarat</span></div>
+
+  <!-- ============ TOAST ============ -->
+  <div id="toasts" class="toasts"></div>
+
+  <!-- ============ TITLE SCREEN ============ -->
+  <div id="titleScreen" class="overlay">
+    <div class="title-wrap">
+      <div class="title-eyebrow">PROSEDUR EKSPLORASI ANTARMATA</div>
+      <h1 class="game-title"><span>STARBOUND</span><em>NOMAD</em></h1>
+      <div class="title-rule"></div>
+      <p class="title-tag">Terbangun di ranting bintang yang sepi. Kapalmu masih hidup.<br>
+        Jelajahi planet, turun dari kokpit, dan petakan bintang yang belum punya nama.</p>
+      <div class="title-menu">
+        <button class="btn primary" id="btnNew">PERJALANAN BARU</button>
+        <button class="btn" id="btnContinue">LANJUT</button>
+        <button class="btn ghost" id="btnHelpTitle">KONTROL</button>
+      </div>
+      <div class="title-foot">
+        <span id="titleVersion">v1.0 · Canvas 2D · 60FPS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ GALAXY MAP ============ -->
+  <div id="galaxyScreen" class="overlay hidden">
+    <div class="galaxy-head">
+      <div>
+        <div class="title-eyebrow">PETA GALAKSI</div>
+        <h2 class="panel-h">PILIH SISTEM TUJUAN</h2>
+      </div>
+      <div class="galaxy-status">
+        <div><span>KREDIT</span><b id="gxCredits">0 CR</b></div>
+        <div><span>INTI LOMPAT</span><b id="gxCores">0 / 3</b></div>
+        <div><span>FUEL</span><b id="gxFuel">100%</b></div>
+      </div>
+      <button class="btn ghost small" id="btnCloseGalaxy">TUTUP <kbd>M</kbd></button>
+    </div>
+    <canvas id="galaxyCanvas"></canvas>
+    <div class="galaxy-foot">
+      <div class="gx-legend">
+        <span><i class="dot ok"></i> dapat dicapai</span>
+        <span><i class="dot lock"></i> terkunci</span>
+        <span><i class="dot cur"></i> posisi saat ini</span>
+      </div>
+      <div class="gx-hint">Klik sistem untuk melihat detail · klik lagi / <kbd>ENTER</kbd> untuk melompat</div>
+    </div>
+  </div>
+
+  <!-- ============ PLANET INFO PANEL ============ -->
+  <div id="planetModal" class="overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="title-eyebrow" id="plKicker">TARGET</div>
+          <h2 class="panel-h" id="plName">—</h2>
+        </div>
+        <button class="btn ghost small" id="btnClosePlanet">TUTUP</button>
+      </div>
+      <div class="modal-body">
+        <canvas id="plPreview" class="pl-preview" width="320" height="320"></canvas>
+        <div class="pl-info">
+          <p id="plLore" class="pl-lore">—</p>
+          <div class="pl-stats" id="plStats"></div>
+          <div class="pl-sec">
+            <div class="pl-sec-title">KOMODITAS</div>
+            <div class="pl-res" id="plRes"></div>
+          </div>
+          <div class="pl-sec">
+            <div class="pl-sec-title">KONTRAK</div>
+            <div class="pl-contract" id="plContract"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="modal-hint" id="plHint"></span>
+        <button class="btn primary" id="btnLand">TURUN DAN JELAJAH</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ JOURNAL ============ -->
+  <div id="journal" class="overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="title-eyebrow">CATATAN PELAYARAN</div>
+          <h2 class="panel-h">JURNAL</h2>
+        </div>
+        <button class="btn ghost small" id="btnCloseJournal">TUTUP</button>
+      </div>
+      <div class="modal-body journal-body">
+        <div class="journal-col">
+          <div class="pl-sec-title">LOG TEMUAN</div>
+          <div id="journalLog" class="jlog"></div>
+        </div>
+        <div class="journal-col">
+          <div class="pl-sec-title">CATATAN PLANET</div>
+          <div id="journalPlanets" class="jlog"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HELP ============ -->
+  <div id="helpModal" class="overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="title-eyebrow">MANUAL KAPAL & SUIT</div>
+          <h2 class="panel-h">KONTROL</h2>
+        </div>
+        <button class="btn ghost small" id="btnCloseHelp">TUTUP</button>
+      </div>
+      <div class="modal-body help-body">
+        <div class="help-col">
+          <div class="pl-sec-title">RUANG ANGSA</div>
+          <dl>
+            <dt><kbd>W</kbd> / <kbd>↑</kbd></dt><dd>Mesin dorong</dd>
+            <dt><kbd>S</kbd> / <kbd>↓</kbd></dt><dd>Rem / mundur</dd>
+            <dt><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></dt><dd>Belok kapal</dd>
+            <dt><kbd>SHIFT</kbd></dt><dd>Boost (boros BBM)</dd>
+            <dt><kbd>E</kbd></dt><dd>Mendarat di planet terdekat</dd>
+            <dt><kbd>M</kbd></dt><dd>Peta galaksi</dd>
+            <dt><kbd>J</kbd></dt><dd>Jurnal</dd>
+          </dl>
+        </div>
+        <div class="help-col">
+          <div class="pl-sec-title">PERMUKAAN PLANET</div>
+          <dl>
+            <dt><kbd>A</kbd><kbd>D</kbd></dt><dd>Berjalan</dd>
+            <dt><kbd>SPACE</kbd></dt><dd>Lompat</dd>
+            <dt><kbd>F</kbd></dt><dd>Scan area sekitar</dd>
+            <dt><kbd>E</kbd></dt><dd>Ambil / tambang material</dd>
+            <dt><kbd>R</kbd></dt><dd>Pulang ke kapal & tinggal</dd>
+          </dl>
+          <div class="pl-sec-title" style="margin-top:16px">CATATAN</div>
+          <p class="help-note">Mendarat butuh <b>kecepatan rendah</b> di area orbit. Suit yang kosong memaksa
+            evakuasi otomatis ke kapal. Inti lompatan membuka sistem bintang baru di peta galaksi.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PAUSE / MENU ============ -->
+  <div id="pauseScreen" class="overlay hidden">
+    <div class="modal narrow">
+      <div class="modal-head">
+        <div>
+          <div class="title-eyebrow">SISTEM DIJEDA</div>
+          <h2 class="panel-h">JEDA</h2>
+        </div>
+      </div>
+      <div class="modal-body menu-body">
+        <button class="btn primary" id="btnResume">LANJUTKAN</button>
+        <button class="btn" id="btnMenuGalaxy">PETA GALAKSI</button>
+        <button class="btn" id="btnMenuHelp">KONTROL</button>
+        <button class="btn" id="btnMenuJournal">JURNAL</button>
+        <button class="btn danger" id="btnSaveQuit">SIMPAN &amp; KELUAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LOADING ============ -->
+  <div id="boot" class="boot">
+    <div class="boot-inner">
+      <div class="boot-ring"></div>
+      <div class="boot-text" id="bootText">MENYALAKAN REAKTOR…</div>
+    </div>
+  </div>
+</div>
+
+<script src="js/core/utils.js"></script>
+<script src="js/core/input.js"></script>
+<script src="js/core/audio.js"></script>
+<script src="js/core/gfx.js"></script>
+<script src="js/data/universe.js"></script>
+<script src="js/game/state.js"></script>
+<script src="js/game/galaxy.js"></script>
+<script src="js/game/space.js"></script>
+<script src="js/game/surface.js"></script>
+<script src="js/game/cinematic.js"></script>
+<script src="js/ui/hud.js"></script>
+<script src="js/ui/menus.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
