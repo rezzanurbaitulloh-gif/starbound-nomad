@@ -53,7 +53,7 @@
   }
 
   function loop(now) {
-    const dt = Math.min(0.033, (now - Main.last) / 1000);
+    const dt = Math.min(0.1, (now - Main.last) / 1000);
     Main.last = now;
     Main.time += dt;
 
@@ -103,7 +103,7 @@
     /* boot fade */
     const boot = document.getElementById('boot');
     if (boot && !boot.classList.contains('gone')) {
-      if (Main.time > 0.8) boot.classList.add('gone');
+      if (performance.now() - Main.startedAt > 600) boot.classList.add('gone');
     }
 
     if (Input && Input.endFrame) Input.endFrame();
@@ -143,7 +143,8 @@
     Main.setMode('title');
     if (SB.ui && SB.ui.showTitle) SB.ui.showTitle();
 
-    Main.last = performance.now();
+    Main.startedAt = performance.now();
+    Main.last = Main.startedAt;
     requestAnimationFrame(loop);
   };
 

@@ -266,11 +266,13 @@
      JOURNAL
      ============================================================ */
   UI.openJournal = function () {
+    if (S.mode === 'pause') { $('pauseScreen').classList.add('hidden'); UI._pauseOverlay = true; }
     UI.renderJournal();
     $('journal').classList.remove('hidden');
   };
   UI.closeJournal = function () {
     $('journal').classList.add('hidden');
+    if (S.mode === 'pause' && UI._pauseOverlay) { UI._pauseOverlay = false; $('pauseScreen').classList.remove('hidden'); }
   };
 
   UI.renderJournal = function () {

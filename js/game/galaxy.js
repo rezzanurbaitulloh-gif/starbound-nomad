@@ -46,6 +46,7 @@
     Gx.open = true;
     Gx.selected = sys;
     Gx.hover = null;
+    Gx._skipKeys = true;
     document.getElementById('galaxyScreen').classList.remove('hidden');
     Gx.resize();
     SB.ui.updateGalaxyStatus();
@@ -112,6 +113,7 @@
     if (!Gx.open) return;
     Gx.time += dt;
     Gx.hover = Gx.pick(Gx.mouse);
+    if (Gx._skipKeys) { Gx._skipKeys = false; return; }
 
     const cur = SB.universe.getSystem(SB.state.systemId);
     if (Gx.selected && Gx.selected.id !== cur.id) {

@@ -437,8 +437,9 @@
     for (const p of Space.planets) {
       const sp = p.def._sphere;
       const screenR = p.r * zoom;
-      const res = U.clamp(Math.round(screenR * 2.1), 64, 380);
-      sp.setResolution(res);
+      const raw = U.clamp(Math.round(screenR * 1.7), 64, 288);
+      const res = raw <= 96 ? 96 : raw <= 144 ? 144 : raw <= 192 ? 192 : 288;
+      if (sp.res !== res) sp.setResolution(res);
       sp.update(p.def.rotation);
 
       /* atmosphere halo */

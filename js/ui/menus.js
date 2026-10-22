@@ -87,12 +87,15 @@
   /* ============================================================
      HELP
      ============================================================ */
+  UI._pauseOverlay = false;
   UI.openHelp = function () {
+    if (S.mode === 'pause') { $('pauseScreen').classList.add('hidden'); UI._pauseOverlay = true; }
     $('helpModal').classList.remove('hidden');
     SB.audio.sfx.ui();
   };
   UI.closeHelp = function () {
     $('helpModal').classList.add('hidden');
+    if (S.mode === 'pause' && UI._pauseOverlay) { UI._pauseOverlay = false; $('pauseScreen').classList.remove('hidden'); }
     SB.audio.sfx.uiBack();
   };
 
@@ -117,7 +120,6 @@
      JOURNAL
      ============================================================ */
   UI.toggleJournal = function () {
-    if (S.mode === 'pause') return;
     const el = $('journal');
     if (el.classList.contains('hidden')) { UI.openJournal(); SB.audio.sfx.ui(); }
     else { UI.closeJournal(); SB.audio.sfx.uiBack(); }
