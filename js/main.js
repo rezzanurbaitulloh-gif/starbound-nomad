@@ -58,7 +58,6 @@
     Main.time += dt;
 
     const Input = SB.input;
-    if (Input) Input.update();
 
     if (SB.ui && SB.ui.handleKeys) {
       SB.ui.handleKeys();
@@ -107,6 +106,7 @@
       if (Main.time > 0.8) boot.classList.add('gone');
     }
 
+    if (Input && Input.endFrame) Input.endFrame();
     requestAnimationFrame(loop);
   }
 

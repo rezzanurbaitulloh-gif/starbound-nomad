@@ -97,25 +97,28 @@
     canvas.addEventListener('touchend', () => { this.touch.active = false; this.mouse.down = false; }, { passive: false });
   };
 
-  Input.down = (k) => this.keys.has(k);
-  Input.hit = (k) => this.pressed.has(k);
-  Input.up = (k) => this.released.has(k);
+  Input.down = function (k) { return Input.keys.has(k); };
+  Input.hit = function (k) { return Input.pressed.has(k); };
+  Input.up = function (k) { return Input.released.has(k); };
 
   /* combined axis helpers */
-  Input.axis = () => {
+  Input.axis = function () {
     let x = 0, y = 0;
-    if (this.down('left') || this.down('a')) x -= 1;
-    if (this.down('right') || this.down('d')) x += 1;
-    if (this.down('up') || this.down('w')) y -= 1;
-    if (this.down('down') || this.down('s')) y += 1;
+    if (Input.down('left') || Input.down('a')) x -= 1;
+    if (Input.down('right') || Input.down('d')) x += 1;
+    if (Input.down('up') || Input.down('w')) y -= 1;
+    if (Input.down('down') || Input.down('s')) y += 1;
     return { x, y };
   };
 
   Input.endFrame = function () {
-    this.pressed.clear();
-    this.released.clear();
-    this.mouse.clicked = false;
-    this.mouse.wheel = 0;
-    this.anyInput = false;
+    Input.pressed.clear();
+    Input.released.clear();
+    Input.mouse.clicked = false;
+    Input.mouse.wheel = 0;
+    Input.anyInput = false;
   };
+
+  Input.init = Input.attach;
+  Input.update = Input.endFrame;
 })();
