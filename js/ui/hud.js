@@ -152,6 +152,7 @@
     else if (mode === 'surface') updateSurface();
     UI.updateGalaxyStatus();
   };
+  UI.update = function () { UI.refresh(); };
 
   /* ============================================================
      GALAXY STATUS BAR
@@ -243,13 +244,13 @@
     const ctx = cv.getContext('2d');
     const w = cv.width, h = cv.height;
 
-    if (!pl._sphere) {
-      pl._eq = G.buildEquirect(pl);
-      pl._sphere = new G.Sphere(pl._eq, { x: -0.5, y: -0.45, z: 0.74 });
-      pl._sphere.setResolution(180);
+    if (!pl._previewSphere) {
+      if (!pl._eq) pl._eq = G.buildEquirect(pl);
+      pl._previewSphere = new G.Sphere(pl._eq, { x: -0.5, y: -0.45, z: 0.74 });
+      pl._previewSphere.setResolution(180);
     }
     UI._previewT = (UI._previewT || 0) + dt;
-    pl._sphere.update(UI._previewT * 0.35 + (pl.rotation || 0));
+    pl._previewSphere.update(UI._previewT * 0.35 + (pl.rotation || 0));
 
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#05070f';

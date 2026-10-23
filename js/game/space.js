@@ -92,6 +92,10 @@
 
     if (!keepShip || !S.ship) {
       S.ship = { x: 1400, y: 260, vx: 0, vy: 0, angle: Math.PI, fuel: 1, shield: 1, throttle: 0, boost: false, landed: false };
+      const first = Space.nearestPlanet();
+      if (first.planet) {
+        S.ship.angle = Math.atan2(first.planet.y - S.ship.y, first.planet.x - S.ship.x);
+      }
     }
     S.ship.landed = false;
     Space.cam.x = S.ship.x; Space.cam.y = S.ship.y;
@@ -533,13 +537,23 @@
     mctx.clearRect(0, 0, mw, mh);
     const maxR = 16000;
     const scale = (Math.min(mw, mh) * 0.46) / maxR;
+    const sh = S.ship;
 
     mctx.save();
     mctx.translate(mw / 2, mh / 2);
 
+    /* range rings */
+    mctx.strokeStyle = 'rgba(120,150,200,0.10)';
+    mctx.lineWidth = 1;
+    for (let i = 1; i <= 3; i++) {
+      mctx.beginPath();
+      mctx.arc(0, 0, (Math.min(mw, mh) * 0.46) * i / 3, 0, U.TAU);
+      mctx.stroke();
+    }
+
     /* orbit rings */
     for (const p of Space.planets) {
-      mctx.strokeStyle = 'rgba(140,170,220,0.16)';
+      mctx.strokeStyle = 'rgba(140,170,220,0.15)';
       mctx.lineWidth = 1;
       mctx.beginPath();
       mctx.ellipse(0, 0, p.orbit * scale, p.orbit * 0.42 * scale, 0, 0, U.TAU);
@@ -548,27 +562,56 @@
 
     /* star */
     mctx.fillStyle = sys.star.color;
-    mctx.shadowColor = sys.star.color; mctx.shadowBlur = 12;
-    mctx.beginPath(); mctx.arc(0, 0, 3.2, 0, U.TAU); mctx.fill();
+    mctx.shadowColor = sys.star.color; mctx.shadowBlur = 14;
+    mctx.beginPath(); mctx.arc(0, 0, 3.4, 0, U.TAU); mctx.fill();
     mctx.shadowBlur = 0;
 
-    /* planets */
+    /* route to target */
+    const tp = Space.target && Space.planets.find((q) => q.def.id === Space.target.id);
+    if (tp) {
+      mctx.save();
+      mctx.strokeStyle = 'rgba(111,242,220,0.38)';
+      mctx.lineWidth = 1;
+      mctx.setLineDash([3, 4]);
+      mctx.beginPath();
+      mctx.moveTo(sh.x * scale, sh.y * scale);
+      mctx.lineTo(tp.x * scale, tp.y * scale);
+      mctx.stroke();
+      mctx.restore();
+    }
+
+    /* planets + labels */
     for (const p of Space.planets) {
       const x = p.x * scale, y = p.y * scale;
-      const r = Math.max(2.4, p.r * scale * 3.2);
+      const r = Math.max(2.6, p.r * scale * 3.2);
+      const isTarget = Space.target && Space.target.id === p.def.id;
       mctx.fillStyle = p.def.palette.ramp[1];
       mctx.beginPath(); mctx.arc(x, y, r, 0, U.TAU); mctx.fill();
-      if (Space.target && Space.target.id === p.def.id) {
-        mctx.strokeStyle = 'rgba(111,242,220,0.9)';
+      if (isTarget) {
+        mctx.strokeStyle = 'rgba(111,242,220,0.95)';
         mctx.lineWidth = 1.4;
         mctx.beginPath(); mctx.arc(x, y, r + 4, 0, U.TAU); mctx.stroke();
       }
+      const right = x >= 0;
+      mctx.font = (isTarget ? '700 10px ' : '600 9px ') + 'Orbitron, monospace';
+      mctx.textAlign = right ? 'left' : 'right';
+      mctx.textBaseline = 'middle';
+      mctx.fillStyle = isTarget ? 'rgba(111,242,220,0.98)' : 'rgba(190,208,232,0.78)';
+      mctx.shadowColor = 'rgba(0,0,0,0.9)'; mctx.shadowBlur = 4;
+      mctx.fillText(p.def.name, x + (right ? r + 5 : -r - 5), y);
+      mctx.shadowBlur = 0;
     }
 
-    /* ship */
-    const sh = S.ship;
+    /* ship heading + arrow */
+    const sx = sh.x * scale, sy = sh.y * scale;
     mctx.save();
-    mctx.translate(sh.x * scale, sh.y * scale);
+    mctx.translate(sx, sy);
+    mctx.strokeStyle = 'rgba(111,242,220,0.35)';
+    mctx.lineWidth = 1;
+    mctx.beginPath();
+    mctx.moveTo(Math.cos(sh.angle) * 6, Math.sin(sh.angle) * 6);
+    mctx.lineTo(Math.cos(sh.angle) * 24, Math.sin(sh.angle) * 24);
+    mctx.stroke();
     mctx.rotate(sh.angle);
     mctx.fillStyle = '#6ff2dc';
     mctx.shadowColor = '#6ff2dc'; mctx.shadowBlur = 10;
@@ -577,6 +620,13 @@
     mctx.closePath(); mctx.fill();
     mctx.restore();
     mctx.shadowBlur = 0;
+
+    /* north marker */
+    mctx.font = '700 9px Orbitron, monospace';
+    mctx.textAlign = 'center';
+    mctx.textBaseline = 'top';
+    mctx.fillStyle = 'rgba(170,190,220,0.55)';
+    mctx.fillText('N', 0, -Math.min(mw, mh) * 0.46 + 2);
 
     mctx.restore();
   };

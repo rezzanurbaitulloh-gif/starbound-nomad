@@ -10,6 +10,7 @@
 <body>
 <div id="app">
   <canvas id="scene"></canvas>
+  <canvas id="scene3d"></canvas>
 
   <!-- ============ HUD: RUANG ANGSA ============ -->
   <div id="hudSpace" class="hud hidden">
@@ -46,6 +47,12 @@
         <div class="pf-value" id="tgName">—</div>
         <div class="pf-sub" id="tgDist">—</div>
       </div>
+    </div>
+
+    <div class="nav-compass" id="navCompass">
+      <span class="nc-tick">▲</span>
+      <span class="nc-arrow" id="ncArrow">▲</span>
+      <span class="nc-label" id="ncLabel">—</span>
     </div>
 
     <canvas id="minimap" class="minimap" width="240" height="240"></canvas>
@@ -124,7 +131,7 @@
         <button class="btn ghost" id="btnHelpTitle">KONTROL</button>
       </div>
       <div class="title-foot">
-        <span id="titleVersion">v1.0 · Canvas 2D · 60FPS</span>
+        <span id="titleVersion">v1.1 · WebGL 3D</span>
       </div>
     </div>
   </div>
@@ -277,6 +284,7 @@
   </div>
 </div>
 
+<script src="js/vendor/three.min.js"></script>
 <script src="js/core/utils.js"></script>
 <script src="js/core/input.js"></script>
 <script src="js/core/audio.js"></script>
@@ -285,6 +293,7 @@
 <script src="js/game/state.js"></script>
 <script src="js/game/galaxy.js"></script>
 <script src="js/game/space.js"></script>
+<script src="js/game/space3d.js"></script>
 <script src="js/game/surface.js"></script>
 <script src="js/game/cinematic.js"></script>
 <script src="js/ui/hud.js"></script>

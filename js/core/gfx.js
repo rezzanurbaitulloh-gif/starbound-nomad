@@ -161,7 +161,7 @@
       this.res = 128;
       this.canvas = G.makeCanvas(this.res, this.res);
       this.ctx = this.canvas.getContext('2d');
-      this._img = null;
+      this._img = this.ctx.createImageData(this.res, this.res);
       this._dirty = true;
       this._base = null;   // per-pixel precomputation
       this._lastRot = -999;

@@ -48,6 +48,14 @@ body{ touch-action:none; user-select:none; -webkit-user-select:none; }
   image-rendering:auto;
 }
 
+#scene3d{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  display:none;
+  background:#02030a;
+}
+#scene3d.active{ display:block; }
+
 .hidden{ display:none !important; }
 
 /* ============================================================
@@ -126,9 +134,38 @@ body{ touch-action:none; user-select:none; -webkit-user-select:none; }
 .minimap{
   position:absolute; right:clamp(14px,2.2vmin,26px); top:50%;
   transform:translateY(-50%);
-  width:clamp(130px,15vmin,190px); height:clamp(130px,15vmin,190px);
-  opacity:.82;
+  width:clamp(190px,21vmin,260px); height:clamp(190px,21vmin,260px);
+  opacity:.95;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, rgba(8,14,28,.52), rgba(3,5,11,.82));
+  border:1px solid var(--frame-soft);
+  box-shadow:0 0 0 1px rgba(0,0,0,.4), 0 0 34px -8px rgba(111,242,220,.22);
   filter:drop-shadow(0 0 18px rgba(0,0,0,.6));
+}
+
+.nav-compass{
+  position:absolute; left:50%; top:clamp(16px,2.8vmin,30px);
+  transform:translateX(-50%);
+  display:flex; align-items:center; gap:11px;
+  padding:7px 14px;
+  border:1px solid var(--frame-soft);
+  background:linear-gradient(180deg, rgba(8,12,24,.88), rgba(8,12,24,.62));
+  clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  pointer-events:none;
+}
+.nc-tick{
+  font-size:8px; color:var(--ink-faint); opacity:.7;
+  margin-right:-15px; margin-bottom:18px;
+}
+.nc-arrow{
+  display:inline-block; width:20px; text-align:center;
+  color:var(--cyan); font-size:15px; line-height:1;
+  text-shadow:0 0 12px rgba(111,242,220,.9);
+  transition:transform .12s linear;
+}
+.nc-label{
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+  color:var(--ink-dim); white-space:nowrap;
 }
 
 .keyhints{
@@ -220,9 +257,7 @@ kbd{
   z-index:50;
   display:flex; align-items:center; justify-content:center;
   background:radial-gradient(ellipse at 50% 45%, rgba(8,11,24,.90), rgba(3,4,9,.985) 70%);
-  animation:ovIn .3s var(--ease) both;
 }
-@keyframes ovIn{ from{opacity:0} to{opacity:1} }
 
 /* --- title --- */
 .title-wrap{ text-align:center; max-width:min(760px,90vw); padding:24px; }
@@ -419,6 +454,7 @@ kbd{
   .pl-preview{ align-self:center; }
   .journal-body, .help-body{ flex-direction:column; gap:20px; }
   .minimap{ display:none; }
+  .nav-compass{ top:auto; bottom:74px; }
   .keyhints{ font-size:9px; gap:10px; }
 }
 @media (max-height:560px){

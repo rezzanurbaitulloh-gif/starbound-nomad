@@ -216,9 +216,12 @@
       const s = Gx.selected;
       const unlocked = SB.state.systemUnlocked(s);
       const cw = Math.min(430, w - 40);
-      const ch = 190;
-      const cx = Math.min(Math.max(Gx.pos(s).x - cw / 2, 20), w - cw - 20);
-      const cy = Math.min(Gx.pos(s).y + 40, h - ch - 70);
+      const rows = Math.min(5, s.planets.length);
+      ctx.font = '11px ui-monospace, monospace';
+      const descCount = wrapCount(ctx, s.desc, cw - 32);
+      const ch = 216 + Math.max(0, descCount - 3) * 15;
+      const cx = 24;
+      const cy = Math.max(104, Math.min(112, h - ch - 70));
 
       ctx.fillStyle = 'rgba(7,10,20,0.88)';
       ctx.strokeStyle = 'rgba(111,242,220,0.28)';
@@ -237,15 +240,15 @@
 
       ctx.fillStyle = 'rgba(150,165,200,0.9)';
       ctx.font = '11px ui-monospace, monospace';
-      wrapText(ctx, s.desc, cx + 16, cy + 66, cw - 32, 15);
+      const descEnd = wrapText(ctx, s.desc, cx + 16, cy + 66, cw - 32, 15);
 
       /* planet list */
-      let py = cy + 104;
+      let py = descEnd + 20;
       ctx.fillStyle = 'rgba(140,155,190,0.85)';
       ctx.font = '9px ui-monospace, monospace';
       ctx.fillText('BADAN', cx + 16, py);
       py += 14;
-      for (const pl of s.planets.slice(0, 5)) {
+      for (const pl of s.planets.slice(0, rows)) {
         ctx.fillStyle = pl.palette.ramp[1];
         ctx.beginPath(); ctx.arc(cx + 20, py - 3, 3.2, 0, U.TAU); ctx.fill();
         ctx.fillStyle = 'rgba(200,214,240,0.9)';
@@ -260,9 +263,20 @@
       const act = !unlocked ? 'TERKUNCI — BUTUH ' + s.coresNeeded + ' INTI LOMPAT'
         : s.id === SB.state.systemId ? 'ANDA SEDANG DI SINI'
         : 'KLIK LAGI ATAU [ENTER] UNTUK MELOMPAT';
-      ctx.fillText(act, cx + 16, cy + ch - 14);
+      ctx.fillText(act, cx + 16, py + 6);
     }
   };
+
+  function wrapCount(ctx, text, maxW) {
+    const words = text.split(' ');
+    let line = '', lines = 1;
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) { lines++; line = word; }
+      else line = test;
+    }
+    return lines;
+  }
 
   function wrapText(ctx, text, x, y, maxW, lh) {
     const words = text.split(' ');

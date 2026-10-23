@@ -28,6 +28,9 @@
     Main.prevMode = prev;
     Main.mode = m;
     if (SB.state) SB.state.mode = m;
+    if (SB.space3d && SB.space3d.setActive) {
+      SB.space3d.setActive(m === 'space' || (m === 'pause' && prev === 'space'));
+    }
     if (SB.ui) {
       SB.ui.hideHud();
       if (m === 'space') SB.ui.showHud('space');
@@ -49,6 +52,7 @@
       Main.buf.height = c.height;
     }
     if (SB.galaxy && SB.galaxy.canvas && SB.galaxy.resize) SB.galaxy.resize();
+    if (SB.space3d && SB.space3d.resize) SB.space3d.resize(Main.w, Main.h, Main.dpr);
     if (SB.gfx && SB.gfx._off && SB.gfx._off.resize) SB.gfx._off.resize();
   }
 
@@ -83,7 +87,9 @@
     } else if (Main.mode === 'cinematic') {
       if (SB.cinematic && SB.cinematic.render) SB.cinematic.render(c, Main.w, Main.h);
     } else if (Main.mode === 'space') {
-      if (SB.space && SB.space.render) SB.space.render(c, Main.w, Main.h);
+      if (!(SB.space3d && SB.space3d.ready)) {
+        if (SB.space && SB.space.render) SB.space.render(c, Main.w, Main.h);
+      }
     } else if (Main.mode === 'surface') {
       if (SB.surface && SB.surface.render) SB.surface.render(c, Main.w, Main.h);
     } else if (Main.mode === 'galaxy') {
@@ -91,6 +97,9 @@
       c.fillRect(0, 0, Main.w, Main.h);
     }
 
+    if (Main.mode === 'space' && SB.space3d && SB.space3d.ready) {
+      SB.space3d.render(dt);
+    }
     if (Main.mode === 'galaxy' && SB.galaxy && SB.galaxy.render) SB.galaxy.render();
     if (SB.ui && SB.ui.updatePlanetPreview) SB.ui.updatePlanetPreview(dt);
     c.restore();
@@ -135,6 +144,7 @@
     if (SB.input && SB.input.init) SB.input.init(Main.canvas);
     if (SB.audio && SB.audio.init) SB.audio.init();
     if (SB.galaxy && SB.galaxy.init) SB.galaxy.init();
+    if (SB.space3d && SB.space3d.init) SB.space3d.init(document.getElementById('scene3d'));
     if (SB.ui && SB.ui.wire) SB.ui.wire();
 
     resize();
